@@ -151,23 +151,25 @@ def test_measurement_result_two_qubits(capfd):
  		np.array([F, F, 0, 0]), state)
 
 def test_parse_qubits():
-	assert [0] == run.parse_qubit([run.S, run.S])
-	assert [1] == run.parse_qubit([run.E, run.E])
-	assert [0] == run.parse_qubit([run.S, run.S, run.S, run.S])
-	assert [1] == run.parse_qubit([run.S, run.S, run.E, run.E])
-	assert [2] == run.parse_qubit([run.E, run.E, run.S, run.S])
-	assert [3] == run.parse_qubit([run.E, run.E, run.E, run.E])
+	assert [0] == run.parse_qubit([run.S, run.S], run.S, run.E)
+	assert [1] == run.parse_qubit([run.E, run.E], run.S, run.E)
+	assert [0] == run.parse_qubit([run.S, run.S, run.S, run.S], run.S, run.E)
+	assert [1] == run.parse_qubit([run.S, run.S, run.E, run.E], run.S, run.E)
+	assert [2] == run.parse_qubit([run.E, run.E, run.S, run.S], run.S, run.E)
+	assert [3] == run.parse_qubit([run.E, run.E, run.E, run.E], run.S, run.E)
 	assert [0, 0] == run.parse_qubit(
-		[run.S, run.S, run.S, run.E, run.S, run.S])
+		[run.S, run.S, run.S, run.E, run.S, run.S], run.S, run.E)
 	assert [1, 2] == run.parse_qubit(
-		[run.E, run.E, run.E, run.S, run.E, run.E, run.S, run.S])
+		[run.E, run.E, run.E, run.S, run.E, run.E, run.S, run.S], run.S, run.E)
+	assert [0] == run.parse_qubit(['a', 'a'], 'a', run.E)
+	assert [1] == run.parse_qubit(['b', 'b'], run.S, 'b')
 
 
 def test_parse_qubits_invalid_token_number():
 	with pytest.raises(SyntaxError, matches='number'):
-		run.parse_qubit([run.S])
+		run.parse_qubit([run.S], run.S, run.E)
 	with pytest.raises(SyntaxError, matches='number'):
-		run.parse_qubit([run.S, run.S, run.E])
+		run.parse_qubit([run.S, run.S, run.E], run.S, run.E)
 
 
 def test_parse_one_qubit(tmpdir):

@@ -185,6 +185,27 @@ entanglement superposition superposition superposition
 entanglement superposition entanglement entanglement
 ```
 
+## Creative Mode
+
+There are some people who do not belive that entanglement and
+superposition are at the core of quantum computing.  For these
+people, it seem that they would like to be able to use different
+primitives.  To support this we have **creative mode**.  By 
+supplying two strings after the filename of the program, we 
+can use different symbols for ``superposition`` and ``entanglement``.
+For example, if one wants to use the tab character for superposition
+and two tab characters for entanglement (again it would be an
+absurdity to have only one symbol for entanglement), then one
+could run
+```
+python run.py vacuum.qsel $'\t' $'\t\t'
+```
+We have supplied a program that is written in this form, called
+[vacuum.qsel](vacuum.qsel).  Please be aware that despite the name
+of this file, and the empty seeming content, executing this program 
+does not cause us to transition into a new vacuum state for the universe.
+Or at least it hasn't yet.
+
 ## FAQ
 
 **Q:** Wouldn't understanding the difference betwen quantum and classical

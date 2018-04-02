@@ -5,14 +5,15 @@ import numpy as np
 
 S = 'superposition'
 E = 'entanglement'
-SE = set([S, E])
 
 
-def parse(filename):
+def parse(filename, p0=S, p1=E):
 	"""Reads in the give filename and returns all_qubits and the program.
 
 	Args:
 		filename: the file to read.
+		p0: the token for superposition.
+		p1: the token for entanglement.
 
 	Returns:
 		A tuple of
@@ -26,23 +27,25 @@ def parse(filename):
 	"""
 	program = []
 	all_qubits = set()
+	se = set([p0, p1])
 	with open(filename, 'r') as f:
-		for line in f:
+		for line_num, line in enumerate(f):
 			tokens = line.strip('\n').split(' ')
-			if not all(x in SE for x in tokens):
+			if not all(x in se for x in tokens):
 				raise SyntaxError(
-					'Only entanglement and superposition allowed:\n%s' % line)
+					'Only %s and %s allowed error on line %s:\n%s' % 
+					(repr(p0), repr(p1), line_num, repr(line)))
 			if len(tokens) < 4:
 				raise SyntaxError('Not enough tokens:\n%s' % line)
 			t0, t1 = tokens[0:2]
-			qubits = parse_qubit(tokens[2:])
+			qubits = parse_qubit(tokens[2:], p0, p1)
 			all_qubits.update(qubits)
 			command = {'qubits': qubits}
-			if t0 == S and t1 == S:
+			if t0 == p0 and t1 == p0:
 				if len(qubits) != 1:
 					raise SyntaxError('H gate requires one qubit:\n%s' % line)
 				command['gate'] = 'H'
-			elif t0 == E and t1 == E:
+			elif t0 == p1 and t1 == p1:
 				if len(qubits) != 2:
 					raise SyntaxError('CP gate requires two qubits:\n%s' % line)
 				command['gate'] = 'CP'
@@ -54,16 +57,16 @@ def parse(filename):
 	return all_qubits, program
 
 
-def parse_qubit(tokens):
+def parse_qubit(tokens, p0, p1):
 	if len(tokens) % 2 != 0:
 		raise SyntaxError('Invalid number of tokens %d:\n%s' 
 			% (len(tokens), ' '.join(tokens)))
 	pairs = zip(*[tokens[i::2] for i in range(2)])
 	result = ''
 	for pair in pairs:
-		if pair[0] == S and pair[1] == S:
+		if pair[0] == p0 and pair[1] == p0:
 			result += '0'
-		elif pair[0] == E and pair[1] == E:
+		elif pair[0] == p1 and pair[1] == p1:
 			result += '1'
 		else:
 			result += ','
@@ -131,10 +134,12 @@ def simulate_m(state, qubits, n):
 
 def main():
 	np.random.seed(int(time.time()))
-	if len(sys.argv) != 2:
-		raise ValueError("Command must be called with one argument."
-			"python run.py <file.qsel>")
-	qubits, program = parse(sys.argv[1])
+	if len(sys.argv) != 2 and len(sys.argv) !=4:
+		raise ValueError("Command must be called with a file and "
+			"optionally two tokens. "
+			"python run.py <file.qsel> <entanglement token> "
+			"<superposition token>")
+	qubits, program = parse(*sys.argv[1:4])
 	simulate(qubits, program)
 
 
